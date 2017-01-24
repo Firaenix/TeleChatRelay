@@ -16,9 +16,9 @@
           "--nolazy"
         ],
         "sourceMaps": true,
-        "outFiles": [ "${workspaceRoot}/dist/**/*.js" ],
-        "trace": "all",
-        "diagnosticLogging": true
+        "outFiles": [ "${workspaceRoot}/dist/**/*.js" ]
+        //"trace": "all",
+        //"diagnosticLogging": true
     },
     {
       "type": "node",

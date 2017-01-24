@@ -1,6 +1,6 @@
 import { ChatRelay } from "../interface/ChatRelay";
 import { TELEGRAM_API_KEY } from "../const/private/ApiConsts";
-let TelegramBot = require("node-telegram-bot-api");
+const TelegramBot = require("node-telegram-bot-api");
 
 export class TelegramRelay extends ChatRelay {
   private bot = new TelegramBot(TELEGRAM_API_KEY, { polling: true });

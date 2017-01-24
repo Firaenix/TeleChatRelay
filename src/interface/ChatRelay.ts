@@ -1,9 +1,9 @@
 export abstract class ChatRelay {
-  connect() : void {
+  connect(): void {
 
   }
 
-  sendMessage(message: string, chatId: any) : boolean {
+  sendMessage(message: string, chatId: any): boolean {
     return false;
   }
 }
