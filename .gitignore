@@ -39,3 +39,5 @@ jspm_packages
 # Dont commit dist
 dist/*
 
+# Dont commit private API Keys
+src/const/private/*

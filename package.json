@@ -16,14 +16,17 @@
     "@types/node": "^7.0.3",
     "eslint": "^3.14.0",
     "gulp": "^3.9.1",
+    "gulp-sourcemaps": "^2.4.0",
     "gulp-typescript": "^3.1.1",
     "node-telegram-bot-api": "^0.26.0",
     "ts-node": "^2.0.0",
-    "typescript": "^2.1.5",
+    "typescript": "^2.1.5"
   },
   "dependencies": {
     "body-parser": "^1.15.2",
     "express": "^4.14.0",
-    "morgan": "^1.7.0"
+    "morgan": "^1.7.0",
+    "node-telegram-bot-api": "^0.26.0",
+    "wechat": "^2.0.3"
   }
 }
