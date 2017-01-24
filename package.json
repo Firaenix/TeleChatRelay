@@ -5,21 +5,25 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "npm run build:live",
-    "build:live": "nodemon --exec ./node_modules/.bin/ts-node -- ./index.ts"
+    "start": "node dist/index.js"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "devDependencies": {
+    "@types/body-parser": "0.0.33",
+    "@types/morgan": "^1.7.32",
     "@types/node": "^7.0.3",
     "eslint": "^3.14.0",
     "gulp": "^3.9.1",
     "gulp-typescript": "^3.1.1",
     "node-telegram-bot-api": "^0.26.0",
-    "nodemon": "^1.11.0",
     "ts-node": "^2.0.0",
     "typescript": "^2.1.5",
-    "wechat": "^2.0.3"
+  },
+  "dependencies": {
+    "body-parser": "^1.15.2",
+    "express": "^4.14.0",
+    "morgan": "^1.7.0"
   }
 }
