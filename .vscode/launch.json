@@ -8,7 +8,7 @@
       "name": "Launch",
         "type": "node",
         "request": "launch",
-        "program": "${workspaceRoot}/dist/telegram.js",
+        "program": "${workspaceRoot}/dist/index.js",
         "stopOnEntry": false,
         "args": [],
         "cwd": "${workspaceRoot}",

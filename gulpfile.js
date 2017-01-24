@@ -10,7 +10,7 @@ gulp.task('scripts', () => {
   .pipe(sourcemaps.init({ loadMaps: true }))
   .pipe(tsProject());
   return tsResult.js
-    .pipe(sourcemaps.write("../dist"))
+    .pipe(sourcemaps.write('.', {sourceRoot: '.'}))
     .pipe(gulp.dest('dist'));
 });
 
