@@ -1,14 +1,14 @@
-import { ChatRelay } from "../interface/ChatRelay";
-import { TELEGRAM_API_KEY } from "../const/private/ApiConsts";
-const TelegramBot = require("node-telegram-bot-api");
+import { IChatRelay } from "../../interface/IChatRelay";
+import { TELEGRAM_API_KEY } from "../../const/private/ApiConsts";
+import TelegramBot = require("node-telegram-bot-api");
 
-export class TelegramRelay extends ChatRelay {
-  private bot = new TelegramBot(TELEGRAM_API_KEY, { polling: true });
+export class TelegramRelay extends IChatRelay {
+  _bot = new TelegramBot(TELEGRAM_API_KEY, { polling: true });
 
   connect(): void {
     const self = this;
 
-    this.bot.onText(/\/echo (.+)/, function (msg, match) {
+    this._bot.onText(/\/echo (.+)/, function (msg, match) {
       // 'msg' is the received Message from Telegram
       // 'match' is the result of executing the regexp above on the text content
       // of the message
@@ -23,7 +23,7 @@ export class TelegramRelay extends ChatRelay {
 
     // Listen for any kind of message. There are different kinds of
     // messages.
-    this.bot.on('message', function (msg) {
+    this._bot.on('message', function (msg) {
       const chatId = msg.chat.id;
 
       // send a message to the chat acknowledging receipt of their message
@@ -34,7 +34,7 @@ export class TelegramRelay extends ChatRelay {
   }
 
   sendMessage(message: string, chatId: any): boolean {
-    this.bot.sendMessage(chatId, message);
+    this._bot.sendMessage(chatId, message);
     return true;
   }
 }
