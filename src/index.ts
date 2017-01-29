@@ -1,10 +1,10 @@
-import { TelegramRelay } from "./impl/Telegram/Telegram";
-import { WeChatRelay } from './impl/WeChat/WeChat';
+import { TelegramRelay } from './impl/Telegram/TelegramRelay';
+import { WeChatRelay } from './impl/WeChat/WeChatRelay';
 
 let telegramRelay = new TelegramRelay();
 let weChatRelay = new WeChatRelay(telegramRelay);
 
 telegramRelay.connectToRelay(weChatRelay);
 
-telegramRelay.connect();
 weChatRelay.connect();
+telegramRelay.connect();
