@@ -1,4 +1,3 @@
-import { RelayPhoto } from './../../model/RelayPhoto';
 import TelegramBot = require('node-telegram-bot-api');
 import https = require('https');
 import { IChatRelay } from '../../interface/IChatRelay';
@@ -12,9 +11,8 @@ export class TelegramRelay extends IChatRelay {
   _relay: IChatRelay;
 
   connect(): void {
-    const self = this;
     this._bot.on('text', msg => this.hookBotRecievedText(msg));
-    this._bot.on('photo', async function(msg) { await self.hookBotRecievedPhoto(msg); });
+    this._bot.on('photo', msg => this.hookBotRecievedPhoto(msg));
     // this._bot.on('document', msg => this.hookBotRecievedPhoto(msg));
     // this._bot.on('sticker', msg => this.hookBotRecievedPhoto(msg));
     // this._bot.on('video', msg => this.hookBotRecievedPhoto(msg));
@@ -27,20 +25,25 @@ export class TelegramRelay extends IChatRelay {
     this.sendMessageToRelay(new RelayMessage(msg.text, msg.from.username));
   }
 
-  async hookBotRecievedPhoto(msg: any): Promise<void> {
+  hookBotRecievedPhoto(msg: any): void {
     const self = this;
     const url = `https://api.telegram.org/file/bot${TELEGRAM_API_KEY}/${msg.photo[0].file_path}`;
 
     downloadFileAndTriggerAction(url, (d: Uint8Array) => {
-      new RelayPhoto({
-        image: d,
-        fileName: msg.photo[0].file_path,
-        from: msg.from.username
-      });
-    })
+      // Download a file and send it to the relay
+      // this.sendImageToRelay(new RelayPhoto({
+      //   image: d,
+      //   fileName: msg.photo[0].file_path,
+      //   from: msg.from.username
+      // }));
+    });
   }
 
   recieveMessageFromRelay(message: RelayMessage): void {
     this._bot.sendMessage(TELEGRAM_CHAT_ID, message.getMessage());
+  }
+
+  recieveImageFromRelay(message: RelayPhoto): void {
+    this._bot.sendPhoto(TELEGRAM_CHAT_ID, message.getFilePath());
   }
 }

@@ -1,7 +1,11 @@
+import { createWriteStream } from 'fs';
+import { MediaMessage, MsgType } from 'wechaty/dist/src/message';
 import { RelayMessage } from './../../model/RelayMessage';
 import { Wechaty, Message, Room } from 'wechaty';
 import { IChatRelay } from '../../interface/IChatRelay';
 import { WECHAT_ROOM_NAME } from '../../const/private/ApiConsts';
+import { RelayPhoto } from '../../model/RelayPhoto';
+import { downloadFileAndTriggerAction } from '../../utils/Files';
 
 export class WeChatRelay extends IChatRelay {
   _bot = Wechaty.instance();
@@ -38,7 +42,40 @@ export class WeChatRelay extends IChatRelay {
 
     // Keep the connection to the room alive
     this.resolveRoomAndPerformAction()
+
+    switch (message.type()) {
+      case MsgType.IMAGE:
+        this.hookWeChatPhoto(message);
+        break;
+      case MsgType.TEXT:
+        this.hookWeChatText(message);
+        break;
+      default:
+        break;
+    }
+  }
+
+  hookWeChatText(message: Message): void {
     this.sendMessageToRelay(new RelayMessage(message.content(), message.from().name()));
+  }
+
+  hookWeChatPhoto(message: Message): void {
+    const self = this;
+
+    message.readyStream()
+      .then(stream => {
+        const fileStream = createWriteStream(message.filename())
+
+        fileStream.on('open', fd => {
+          stream.pipe(fileStream)
+            .on('close', () => {
+              self.sendImageToRelay(new RelayPhoto({
+                filePath: message.filename()
+              }));
+          });
+        });
+      })
+      .catch(e => console.log('stream error:' + e))
   }
 
   resolveRoomAndPerformAction(action?: () => any): void {
@@ -72,5 +109,11 @@ export class WeChatRelay extends IChatRelay {
 
       self._bot.send(msg);
     });
+  }
+
+  recieveImageFromRelay(message: RelayPhoto): void {
+    const msg = new Message();
+
+    //throw new Error('Not implemented yet.');
   }
 }
