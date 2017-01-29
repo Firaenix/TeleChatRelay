@@ -24,11 +24,11 @@
   },
   "dependencies": {
     "body-parser": "^1.15.2",
+    "chromedriver": "^2.27.2",
     "express": "^4.14.0",
     "morgan": "^1.7.0",
     "node-telegram-bot-api": "^0.26.0",
     "tslint": "^4.3.1",
-    "wechat": "^2.0.3",
-    "wechat-token": "^0.5.3"
+    "wechaty": "^0.7.3"
   }
 }

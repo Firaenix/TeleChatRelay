@@ -1,7 +1,6 @@
 {
     "jsRules": {
         "class-name": true,
-        "comment-format": [false,false],
         "indent": [
             true,
             "spaces"
@@ -62,7 +61,7 @@
         ],
         "quotemark": [
             true,
-            "double"
+            "single"
         ],
         "semicolon": [
             true,
