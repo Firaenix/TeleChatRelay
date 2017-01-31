@@ -41,3 +41,6 @@ dist/*
 
 # Dont commit private API Keys
 src/const/private/*
+
+# Dont commit downloaded files
+files/*

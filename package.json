@@ -13,7 +13,8 @@
   "devDependencies": {
     "@types/body-parser": "0.0.33",
     "@types/morgan": "^1.7.32",
-    "@types/node": "^7.0.3",
+    "@types/node": "^7.0.4",
+    "@types/request-promise": "^4.1.33",
     "gulp": "^3.9.1",
     "gulp-sourcemaps": "^2.4.0",
     "gulp-typescript": "^3.1.1",
@@ -23,9 +24,11 @@
     "typescript": "^2.1.5"
   },
   "dependencies": {
+    "@types/fs-promise": "^1.0.1",
     "body-parser": "^1.15.2",
     "chromedriver": "^2.27.2",
     "express": "^4.14.0",
+    "fs-promise": "^1.0.0",
     "morgan": "^1.7.0",
     "node-telegram-bot-api": "^0.26.0",
     "ts-md5": "^1.2.0",
