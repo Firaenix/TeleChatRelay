@@ -41,10 +41,10 @@ export class WeChatRelay extends IChatRelay {
   private async hookRecievedWeChatMessage(message: Message): Promise<void> {
     //console.log(message);
     // Dont send message if not logged in or message is from the WeChatRelay
-    // if (!this._loggedIn || message.self()) {
-    //   console.log('Not sending message, was sent by myself');
-    //   return;
-    // }
+    if (!this._loggedIn || message.self()) {
+      console.log('Not sending message, was sent by myself');
+      return;
+    }
 
     // Keep the connection to the room alive
     this.resolveRoomAndPerformAction()
