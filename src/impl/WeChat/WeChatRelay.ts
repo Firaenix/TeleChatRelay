@@ -5,6 +5,7 @@ import { Wechaty, Message, Room } from 'wechaty';
 import { IChatRelay } from '../../interface/IChatRelay';
 import { WECHAT_ROOM_NAME } from '../../const/private/ApiConsts';
 import { RelayPhoto } from '../../model/RelayPhoto';
+import * as Fsp from 'fs-promise';
 
 export class WeChatRelay extends IChatRelay {
   _bot = Wechaty.instance();
@@ -13,6 +14,9 @@ export class WeChatRelay extends IChatRelay {
   private _room: Room|null;
   private _loggedIn: boolean = false;
 
+  /*
+   * Responsible for setting up all of the connections from the bot
+   */
   connect(): void {
     console.log('Connecting to WeChat');
     const self = this;
@@ -22,25 +26,25 @@ export class WeChatRelay extends IChatRelay {
     this._bot.init();
   }
 
-  hookQRCodeScanner(url, code): void {
+  private hookQRCodeScanner(url, code): void {
      console.log(`Scan QR Code to login: ${code}\n${url}`);
   }
 
-  hookLoginNotification(user: any) {
+  private hookLoginNotification(user: any) {
     console.log(`User ${user} logined`);
     this._loggedIn = true;
 
     // Just call this to notify the bot that we have connected to WeChat
-    this.recieveMessageFromRelay(new RelayMessage('Relay Connected', 'Relay'));
+    this.recieveMessageFromRelay(new RelayMessage('Relay has logged in', 'Relay'));
   }
 
-  async hookRecievedWeChatMessage(message: Message): Promise<void> {
+  private async hookRecievedWeChatMessage(message: Message): Promise<void> {
     //console.log(message);
     // Dont send message if not logged in or message is from the WeChatRelay
-    if (!this._loggedIn || message.self()) {
-      console.log('Not sending message, was sent by myself');
-      return;
-    }
+    // if (!this._loggedIn || message.self()) {
+    //   console.log('Not sending message, was sent by myself');
+    //   return;
+    // }
 
     // Keep the connection to the room alive
     this.resolveRoomAndPerformAction()
@@ -53,45 +57,47 @@ export class WeChatRelay extends IChatRelay {
         this.hookWeChatText(message);
         break;
       case MsgType.EMOTICON:
-        this.hookWeChatText(message);
+        this.hookWeChatEmoticon(message);
         break;
       default:
         break;
     }
   }
 
-  hookWeChatText(message: Message): void {
+  private hookWeChatText(message: Message): void {
     this.sendMessageToRelay(new RelayMessage(message.content(), message.from().name()));
   }
 
-  async hookWeChatPhoto(message: Message): Promise<void> {
-    const self = this;
+  private async hookWeChatPhoto(message: Message): Promise<void> {
+    try {
+      const readStream = await message.readyStream();
+      const filePath = FileUtils.getSaveDirectory(message.filename(), 'photo');
 
-    const readStream = await message.readyStream();
-    const filePath = await FileUtils.saveFileFromStream(readStream, message.filename())
-
-    this.sendImageToRelay(new RelayPhoto({
-      filePath,
-      fileName: message.filename()
-    }));
-
-    // message.readyStream()
-    //   .then(stream => {
-    //     const fileStream = createWriteStream(message.filename())
-
-    //     fileStream.on('open', fd => {
-    //       stream.pipe(fileStream)
-    //         .on('close', () => {
-    //           self.sendImageToRelay(new RelayPhoto({
-    //             filePath: message.filename()
-    //           }));
-    //       });
-    //     });
-    //   })
-    //   .catch(e => console.log('stream error:' + e))
+      const writeStream = Fsp.createWriteStream(filePath);
+      readStream.pipe(writeStream).on('close', () => {
+        this.sendImageToRelay(new RelayPhoto({
+          filePath,
+          fileName: message.filename()
+        }));
+      });
+    } catch (error) {
+      console.log(error);
+    }
   }
 
-  resolveRoomAndPerformAction(action?: () => any): void {
+  private hookWeChatEmoticon(message: Message): void {
+    try {
+      const emojiRegex = /(cdnurl\s*\=\s*\"(.*)\"\s*designerid)/;
+      if (emojiRegex.test(message.content())) {
+        const emojiUrl = emojiRegex.exec(message.content())[2];
+        this.sendMessageToRelay(new RelayMessage(emojiUrl, message.from().name()));
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  private resolveRoomAndPerformAction(action?: () => any): void {
     if (!this._room) {
       Room.find({ topic: WECHAT_ROOM_NAME }).then((result) => {
         this._room = result;
@@ -125,8 +131,19 @@ export class WeChatRelay extends IChatRelay {
   }
 
   recieveImageFromRelay(message: RelayPhoto): void {
-    const msg = new Message();
+    // Dont send messages if we arent logged in yet
+    if (!this._loggedIn) {
+      return;
+    }
+    // We should make sure we have a room to send the messages to before we send a message
+    const self = this;
 
-    //throw new Error('Not implemented yet.');
+    this.resolveRoomAndPerformAction(() => {
+      const msg = new Message();
+      msg.room(this._room);
+      msg.content(`${message.getSender()}: Tried to send photo/document. sendImage is not supported yet`);
+
+      self._bot.send(msg);
+    });
   }
 }
