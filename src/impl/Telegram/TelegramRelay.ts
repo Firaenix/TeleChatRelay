@@ -14,7 +14,7 @@ export class TelegramRelay extends IChatRelay {
   _bot = new TelegramBot(TELEGRAM_API_KEY, { polling: true });
   _relay: IChatRelay;
 
-  /*
+  /**
    * Responsible for setting up all of the connections from the bot
    */
   connect(): void {
@@ -32,6 +32,10 @@ export class TelegramRelay extends IChatRelay {
     this.hookLoginMessage();
   }
 
+  /*
+  * Hooks
+  */
+
   private hookLoginMessage(): void {
     // Notify telegram bot that relay has connected
     this.recieveMessageFromRelay(new RelayMessage('Relay has logged in', 'Relay'));
@@ -46,7 +50,7 @@ export class TelegramRelay extends IChatRelay {
     this.sendMessageToRelay(new RelayMessage(msg.text, msg.from.username));
   }
 
-  /*
+  /**
   * In the mean time, we can just send as an emoji, download and send picture later
   */
   private hookBotRecievedSticker(msg: Message): void {
@@ -76,6 +80,10 @@ export class TelegramRelay extends IChatRelay {
       console.log(error);
     }
   }
+
+  /*
+  * External Relay Methods
+  */
 
   recieveMessageFromRelay(message: RelayMessage): void {
     this._bot.sendMessage(TELEGRAM_CHAT_ID, message.getMessage());

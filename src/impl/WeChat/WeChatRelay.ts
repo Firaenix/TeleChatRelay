@@ -14,9 +14,6 @@ export class WeChatRelay extends IChatRelay {
   private _room: Room|null;
   private _loggedIn: boolean = false;
 
-  /*
-   * Responsible for setting up all of the connections from the bot
-   */
   connect(): void {
     console.log('Connecting to WeChat');
     const self = this;
@@ -25,6 +22,10 @@ export class WeChatRelay extends IChatRelay {
     this._bot.on('message',  async function(message) { await self.hookRecievedWeChatMessage(message); });
     this._bot.init();
   }
+
+  /*
+  * Hooks
+  */
 
   private hookQRCodeScanner(url, code): void {
      console.log(`Scan QR Code to login: ${code}\n${url}`);
@@ -112,6 +113,10 @@ export class WeChatRelay extends IChatRelay {
       }
     }
   }
+
+  /*
+  * External Relay Methods
+  */
 
   recieveMessageFromRelay(message: RelayMessage): void {
     // Dont send messages if we arent logged in yet
