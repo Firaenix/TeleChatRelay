@@ -61,4 +61,13 @@ export abstract class IChatRelay {
   }
 
   abstract recieveDocumentFromRelay(document: RelayDocument): void;
+
+  /*
+    Voice
+  */
+  sendVoiceToRelay(voice: RelayDocument): void {
+    this._relay.recieveVoiceFromRelay(voice);
+  }
+
+  abstract recieveVoiceFromRelay(voice: RelayDocument): void;
 }

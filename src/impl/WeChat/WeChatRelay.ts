@@ -135,7 +135,23 @@ export class WeChatRelay extends IChatRelay {
     });
   }
 
-  recieveImageFromRelay(message: RelayDocument): void {
+  recieveImageFromRelay(image: RelayDocument): void {
+    this.notImplementedType(image.getSender(), 'photo');
+  }
+
+   recieveVideoFromRelay(video: RelayDocument): void {
+    this.notImplementedType(video.getSender(), 'video');
+  }
+
+   recieveDocumentFromRelay(document: RelayDocument): void {
+    this.notImplementedType(document.getSender(), 'document');
+  }
+
+   recieveVoiceFromRelay(voice: RelayDocument): void {
+    this.notImplementedType(voice.getSender(), 'voice message');
+  }
+
+  private notImplementedType(sender: string, typeName: string): void {
     // Dont send messages if we arent logged in yet
     if (!this._loggedIn) {
       return;
@@ -146,17 +162,9 @@ export class WeChatRelay extends IChatRelay {
     this.resolveRoomAndPerformAction(() => {
       const msg = new Message();
       msg.room(this._room);
-      msg.content(`${message.getSender()}: Tried to send photo/document. sendImage is not supported yet`);
+      msg.content(`${sender}: Tried to send a ${typeName}. Sending ${typeName}s is not supported yet`);
 
       self._bot.send(msg);
     });
-  }
-
-   recieveVideoFromRelay(video: RelayDocument): void {
-    throw new Error('Not implemented yet.');
-  }
-
-   recieveDocumentFromRelay(document: RelayDocument): void {
-    throw new Error('Not implemented yet.');
   }
 }

@@ -9,6 +9,7 @@ import { FileUtils } from '../../utils/FileUtils';
 import * as RequestPromise from 'request-promise';
 import * as Fsp from 'fs-promise';
 import * as request from 'request';
+import { FileTypes } from '../../const/FileTypes';
 
 export class TelegramRelay extends IChatRelay {
   _bot = new TelegramBot(TELEGRAM_API_KEY, { polling: true });
@@ -20,13 +21,13 @@ export class TelegramRelay extends IChatRelay {
   connect(): void {
     const self = this;
     this._bot.on('text', (msg: Message) => this.hookBotRecievedText(msg));
-    this._bot.on('photo', async function(msg: Message) { await self.hookBotRecievedDocument(msg, 'photo'); });
-    //this._bot.on('document', msg => this.hookBotRecievedDocument(msg, 'document'));
-    this._bot.on('sticker', (msg: Message) => {
-      this.hookBotRecievedSticker(msg);
-    });
-    //this._bot.on('video', msg => this.hookBotRecievedDocument(msg, 'video'));
-    //this._bot.on('voice', msg => this.hookBotRecievedDocument(msg, 'voice'));
+    this._bot.on('sticker', (msg: Message) => this.hookBotRecievedSticker(msg));
+
+    this._bot.on('photo', async function(msg: Message) { await self.hookBotRecievedDocument(msg, FileTypes.PHOTO); });
+    this._bot.on('document', async function(msg: Message) { await self.hookBotRecievedDocument(msg, FileTypes.DOCUMENT); });
+    this._bot.on('video', async function(msg: Message) { await self.hookBotRecievedDocument(msg, FileTypes.VIDEO); });
+    this._bot.on('voice', async function(msg: Message) { await self.hookBotRecievedDocument(msg, FileTypes.VOICE); });
+
     this._bot.on('new_chat_title', (msg: Message) => this.hookChangeChatTitle(msg));
 
     this.hookLoginMessage();
@@ -58,7 +59,7 @@ export class TelegramRelay extends IChatRelay {
     this.sendMessageToRelay(new RelayMessage(`sticker - ${msg.sticker.emoji}`, msg.from.username));
   }
 
-  private async hookBotRecievedDocument(msg: Message, type: string): Promise<void> {
+  private async hookBotRecievedDocument(msg: Message, type: FileTypes): Promise<void> {
     const self = this;
     const getUrl = `https://api.telegram.org/bot${TELEGRAM_API_KEY}/getFile?file_id=${msg.photo[1].file_id}`;
     const getFileResponse = JSON.parse(await RequestPromise.get(getUrl));
@@ -66,16 +67,37 @@ export class TelegramRelay extends IChatRelay {
     const downloadUrl = `https://api.telegram.org/file/bot${TELEGRAM_API_KEY}/${getFileResponse.result.file_path}`;
 
     try {
-      // Download file as text
-      const path = FileUtils.getSaveDirectory(getFileResponse.result.file_path, 'photo');
+      // Get the save directory
+      // Request the file and download to that file
+      const path = FileUtils.getSaveDirectory(getFileResponse.result.file_path, FileTypes[type]);
       request(downloadUrl, { encoding: null }).pipe(Fsp.createWriteStream(path));
 
-      this.sendImageToRelay(new RelayDocument({
+      // Based on the type of document, send to different method
+      const message = new RelayDocument({
         fileName: msg.photo[0].file_path,
         filePath: path,
         url: downloadUrl,
         from: msg.from.username
-      }));
+      });
+
+      switch (type) {
+        case FileTypes.PHOTO:
+          this.sendImageToRelay(message);
+          break;
+        case FileTypes.VIDEO:
+          this.sendVideoToRelay(message);
+          break;
+        case FileTypes.DOCUMENT:
+          this.sendDocumentToRelay(message);
+          break;
+        case FileTypes.VOICE:
+          this.sendVoiceToRelay(message);
+          break;
+        default:
+          throw new Error(`Type is ${type}, not supported`);
+      }
+
+
     } catch (error) {
       console.log(error);
     }
@@ -89,15 +111,19 @@ export class TelegramRelay extends IChatRelay {
     this._bot.sendMessage(TELEGRAM_CHAT_ID, message.getMessage());
   }
 
-  recieveImageFromRelay(message: RelayDocument): void {
-    this._bot.sendPhoto(TELEGRAM_CHAT_ID, message.getFilePath());
+  recieveImageFromRelay(image: RelayDocument): void {
+    this._bot.sendPhoto(TELEGRAM_CHAT_ID, image.getFilePath());
   }
 
    recieveVideoFromRelay(video: RelayDocument): void {
-    throw new Error('Not implemented yet.');
+    this._bot.sendVideo(TELEGRAM_CHAT_ID, video.getFilePath());
   }
 
    recieveDocumentFromRelay(document: RelayDocument): void {
-    throw new Error('Not implemented yet.');
+    this._bot.sendDocument(TELEGRAM_CHAT_ID, document.getFilename());
+  }
+
+   recieveVoiceFromRelay(voice: RelayDocument): void {
+    this._bot.sendVoice(TELEGRAM_CHAT_ID, voice.getFilename());
   }
 }
