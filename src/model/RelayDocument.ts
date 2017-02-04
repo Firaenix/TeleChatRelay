@@ -1,18 +1,18 @@
-export interface PhotoData {
+export interface DocumentData {
   filePath: string;
   url?: string;
   fileName?: string;
   from?: string;
 }
 
-export class RelayPhoto {
+export class RelayDocument {
   private _filePath: string;
   private _url: string;
   private _fileName: string;
   private _from: string;
 
 
-  constructor(photoData: PhotoData) {
+  constructor(photoData: DocumentData) {
     this._url = photoData.url;
     this._filePath = photoData.filePath;
     this._fileName = photoData.fileName;

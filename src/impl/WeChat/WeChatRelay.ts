@@ -4,14 +4,14 @@ import { RelayMessage } from './../../model/RelayMessage';
 import { Wechaty, Message, Room } from 'wechaty';
 import { IChatRelay } from '../../interface/IChatRelay';
 import { WECHAT_ROOM_NAME } from '../../const/private/ApiConsts';
-import { RelayPhoto } from '../../model/RelayPhoto';
+import { RelayDocument } from '../../model/RelayDocument';
 import * as Fsp from 'fs-promise';
 
 export class WeChatRelay extends IChatRelay {
   _bot = Wechaty.instance();
   _relay: IChatRelay;
 
-  private _room: Room|null;
+  private _room: Room | null;
   private _loggedIn: boolean = false;
 
   connect(): void {
@@ -76,7 +76,7 @@ export class WeChatRelay extends IChatRelay {
 
       const writeStream = Fsp.createWriteStream(filePath);
       readStream.pipe(writeStream).on('close', () => {
-        this.sendImageToRelay(new RelayPhoto({
+        this.sendImageToRelay(new RelayDocument({
           filePath,
           fileName: message.filename()
         }));
@@ -135,7 +135,7 @@ export class WeChatRelay extends IChatRelay {
     });
   }
 
-  recieveImageFromRelay(message: RelayPhoto): void {
+  recieveImageFromRelay(message: RelayDocument): void {
     // Dont send messages if we arent logged in yet
     if (!this._loggedIn) {
       return;
@@ -150,5 +150,13 @@ export class WeChatRelay extends IChatRelay {
 
       self._bot.send(msg);
     });
+  }
+
+   recieveVideoFromRelay(video: RelayDocument): void {
+    throw new Error('Not implemented yet.');
+  }
+
+   recieveDocumentFromRelay(document: RelayDocument): void {
+    throw new Error('Not implemented yet.');
   }
 }

@@ -1,4 +1,4 @@
-import { RelayPhoto } from './../model/RelayPhoto';
+import { RelayDocument } from './../model/RelayDocument';
 import { RelayMessage } from '../model/RelayMessage';
 
 export abstract class IChatRelay {
@@ -21,6 +21,10 @@ export abstract class IChatRelay {
     this._relay = chatRelay;
   }
 
+  /*
+    Message
+  */
+
   /**
    * This method is to be used when sending a message to a relay's recieveMessage method
    * usage: _bot.on('message', this.sendMessageToRelay(message))
@@ -29,20 +33,32 @@ export abstract class IChatRelay {
     this._relay.recieveMessageFromRelay(message);
   }
 
-  /**
-    This method must be overridden and used to send the given message to the _bot
-  */
   abstract recieveMessageFromRelay(message: RelayMessage): void;
 
-  /**
-    This method is to be used when sending an image to another relay's recieveImage method
+  /*
+    Image
   */
-  sendImageToRelay(image: RelayPhoto): void {
+  sendImageToRelay(image: RelayDocument): void {
     this._relay.recieveImageFromRelay(image);
   }
 
-  /**
-    This method must be overridden and used to send the image to the _bot
+  abstract recieveImageFromRelay(image: RelayDocument): void;
+
+  /*
+    Video
   */
-  abstract recieveImageFromRelay(message: RelayPhoto): void;
+  sendVideoToRelay(video: RelayDocument): void {
+    this._relay.recieveVideoFromRelay(video);
+  }
+
+  abstract recieveVideoFromRelay(video: RelayDocument): void;
+
+  /*
+    Document
+  */
+  sendDocumentToRelay(document: RelayDocument): void {
+    this._relay.recieveDocumentFromRelay(document);
+  }
+
+  abstract recieveDocumentFromRelay(document: RelayDocument): void;
 }

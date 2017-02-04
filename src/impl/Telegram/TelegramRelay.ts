@@ -4,7 +4,7 @@ import { RequestOptions } from 'http';
 import { IChatRelay } from '../../interface/IChatRelay';
 import { TELEGRAM_API_KEY, TELEGRAM_CHAT_ID } from '../../const/private/ApiConsts';
 import { RelayMessage } from '../../model/RelayMessage';
-import { RelayPhoto } from '../../model/RelayPhoto';
+import { RelayDocument } from '../../model/RelayDocument';
 import { FileUtils } from '../../utils/FileUtils';
 import * as RequestPromise from 'request-promise';
 import * as Fsp from 'fs-promise';
@@ -70,7 +70,7 @@ export class TelegramRelay extends IChatRelay {
       const path = FileUtils.getSaveDirectory(getFileResponse.result.file_path, 'photo');
       request(downloadUrl, { encoding: null }).pipe(Fsp.createWriteStream(path));
 
-      this.sendImageToRelay(new RelayPhoto({
+      this.sendImageToRelay(new RelayDocument({
         fileName: msg.photo[0].file_path,
         filePath: path,
         url: downloadUrl,
@@ -89,7 +89,15 @@ export class TelegramRelay extends IChatRelay {
     this._bot.sendMessage(TELEGRAM_CHAT_ID, message.getMessage());
   }
 
-  recieveImageFromRelay(message: RelayPhoto): void {
+  recieveImageFromRelay(message: RelayDocument): void {
     this._bot.sendPhoto(TELEGRAM_CHAT_ID, message.getFilePath());
+  }
+
+   recieveVideoFromRelay(video: RelayDocument): void {
+    throw new Error('Not implemented yet.');
+  }
+
+   recieveDocumentFromRelay(document: RelayDocument): void {
+    throw new Error('Not implemented yet.');
   }
 }
