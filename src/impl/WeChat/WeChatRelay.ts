@@ -83,6 +83,7 @@ export class WeChatRelay extends IChatRelay {
       });
     } catch (error) {
       console.log(error);
+      console.log(error.stack);
     }
   }
 
@@ -95,6 +96,7 @@ export class WeChatRelay extends IChatRelay {
       }
     } catch (error) {
       console.log(error);
+      console.log(error.stack);
     }
   }
 
@@ -162,7 +164,7 @@ export class WeChatRelay extends IChatRelay {
     this.resolveRoomAndPerformAction(() => {
       const msg = new Message();
       msg.room(this._room);
-      msg.content(`${sender}: Tried to send a ${typeName}. Sending ${typeName}s is not supported yet`);
+      msg.content(`${sender}: Tried to send a ${typeName}. Sending ${typeName}s is not supported yet. 不支持的文件类型。`);
 
       self._bot.send(msg);
     });

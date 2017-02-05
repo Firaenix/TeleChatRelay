@@ -60,46 +60,62 @@ export class TelegramRelay extends IChatRelay {
   }
 
   private async hookBotRecievedDocument(msg: Message, type: FileTypes): Promise<void> {
-    const self = this;
-    const getUrl = `https://api.telegram.org/bot${TELEGRAM_API_KEY}/getFile?file_id=${msg.photo[1].file_id}`;
-    const getFileResponse = JSON.parse(await RequestPromise.get(getUrl));
+    interface DownloadObject {
+      downloadUrl: string;
+      filePath: string;
+    }
 
-    const downloadUrl = `https://api.telegram.org/file/bot${TELEGRAM_API_KEY}/${getFileResponse.result.file_path}`;
+    /**
+     * file parameter must
+     */
+    const downloadAndReturnPath = async (file: IFile): Promise<DownloadObject> => {
+      // Resolve the download URL
+      const getUrl = `https://api.telegram.org/bot${TELEGRAM_API_KEY}/getFile?file_id=${file.file_id}`;
+      const getFileResponse = JSON.parse(await RequestPromise.get(getUrl));
 
-    try {
-      // Get the save directory
-      // Request the file and download to that file
+      // Download from the path
+      const downloadUrl = `https://api.telegram.org/file/bot${TELEGRAM_API_KEY}/${getFileResponse.result.file_path}`;
       const path = FileUtils.getSaveDirectory(getFileResponse.result.file_path, FileTypes[type]);
       request(downloadUrl, { encoding: null }).pipe(Fsp.createWriteStream(path));
 
-      // Based on the type of document, send to different method
-      const message = new RelayDocument({
-        fileName: msg.photo[0].file_path,
-        filePath: path,
-        url: downloadUrl,
+      return {
+        downloadUrl: downloadUrl,
+        filePath: path
+      };
+    }
+
+    const compileMessage = (filename: string, downloadObj: DownloadObject): RelayDocument => {
+      return new RelayDocument({
+        fileName: filename,
+        filePath: downloadObj.filePath,
+        url: downloadObj.downloadUrl,
         from: msg.from.username
       });
+    };
 
-      switch (type) {
-        case FileTypes.PHOTO:
-          this.sendImageToRelay(message);
-          break;
-        case FileTypes.VIDEO:
-          this.sendVideoToRelay(message);
-          break;
-        case FileTypes.DOCUMENT:
-          this.sendDocumentToRelay(message);
-          break;
-        case FileTypes.VOICE:
-          this.sendVoiceToRelay(message);
-          break;
-        default:
-          throw new Error(`Type is ${type}, not supported`);
-      }
+    switch (type) {
+      case FileTypes.PHOTO:
+        const photo = msg.photo[1];
 
+        this.sendImageToRelay(compileMessage(photo.file_path, await downloadAndReturnPath(photo)));
+        break;
+      case FileTypes.VIDEO:
+        const video = msg.video;
 
-    } catch (error) {
-      console.log(error);
+        this.sendVideoToRelay(compileMessage(video.file_path, await downloadAndReturnPath(video)));
+        break;
+      case FileTypes.DOCUMENT:
+        const doc = msg.document;
+
+        this.sendDocumentToRelay(compileMessage(doc.file_path, await downloadAndReturnPath(doc)));
+        break;
+      case FileTypes.VOICE:
+        const voice = msg.voice;
+
+        this.sendVoiceToRelay(compileMessage(voice.file_path, await downloadAndReturnPath(voice)));
+        break;
+      default:
+        throw new Error(`Type is ${type}, not supported`);
     }
   }
 
