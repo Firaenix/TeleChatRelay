@@ -6,6 +6,7 @@ import { IChatRelay } from '../../interface/IChatRelay';
 import { WECHAT_ROOM_NAME } from '../../const/private/ApiConsts';
 import { RelayDocument } from '../../model/RelayDocument';
 import * as Fsp from 'fs-promise';
+import { FileTypes } from '../../const/FileTypes';
 
 export class WeChatRelay extends IChatRelay {
   _bot = Wechaty.instance();
@@ -51,14 +52,20 @@ export class WeChatRelay extends IChatRelay {
     this.resolveRoomAndPerformAction()
 
     switch (message.type()) {
-      case MsgType.IMAGE:
-        await this.hookWeChatPhoto(message);
-        break;
       case MsgType.TEXT:
         this.hookWeChatText(message);
         break;
       case MsgType.EMOTICON:
         this.hookWeChatEmoticon(message);
+        break;
+      case MsgType.IMAGE:
+        await this.hookWeChatDocument(message, FileTypes.PHOTO);
+        break;
+      case MsgType.VIDEO:
+        await this.hookWeChatDocument(message, FileTypes.VIDEO);
+        break;
+      case MsgType.VOICE:
+        await this.hookWeChatDocument(message, FileTypes.VOICE);
         break;
       default:
         break;
@@ -69,22 +76,32 @@ export class WeChatRelay extends IChatRelay {
     this.sendMessageToRelay(new RelayMessage(message.content(), message.from().name()));
   }
 
-  private async hookWeChatPhoto(message: Message): Promise<void> {
-    try {
-      const readStream = await message.readyStream();
-      const filePath = FileUtils.getSaveDirectory(message.filename(), 'photo');
+  private async hookWeChatDocument(message: Message, msgType: FileTypes): Promise<void> {
+    const self = this;
+    const readStream = await message.readyStream();
+    const filePath = FileUtils.getSaveDirectory(message.filename(), FileTypes[msgType]);
 
-      const writeStream = Fsp.createWriteStream(filePath);
-      readStream.pipe(writeStream).on('close', () => {
-        this.sendImageToRelay(new RelayDocument({
-          filePath,
-          fileName: message.filename()
-        }));
+    const writeStream = Fsp.createWriteStream(filePath);
+    readStream.pipe(writeStream).on('close', () => {
+      const relayDoc = new RelayDocument({
+        filePath,
+        fileName: message.filename()
       });
-    } catch (error) {
-      console.log(error);
-      console.log(error.stack);
-    }
+
+      switch (msgType) {
+        case FileTypes.PHOTO:
+          this.sendImageToRelay(relayDoc);
+          break;
+        case FileTypes.VIDEO:
+          this.sendVideoToRelay(relayDoc);
+          break;
+        case FileTypes.VOICE:
+          this.sendVoiceToRelay(relayDoc);
+          break;
+        default:
+          throw new Error(`MsgType ${msgType.toString()} is not supported`);
+      }
+    });
   }
 
   private hookWeChatEmoticon(message: Message): void {
