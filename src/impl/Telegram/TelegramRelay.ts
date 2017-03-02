@@ -48,7 +48,13 @@ export class TelegramRelay extends IChatRelay {
 
   private hookBotRecievedText(msg: Message): void {
     const chatId = msg.chat.id;
-    this.sendMessageToRelay(new RelayMessage(msg.text, msg.from.username || `${msg.from.first_name} ${msg.from.last_name}`));
+
+    if (msg.reply_to_message) {
+      this.handleReplyMessages(msg);
+    }
+    else {
+      this.sendMessageToRelay(new RelayMessage(msg.text, msg.from.username || `${msg.from.first_name} ${msg.from.last_name}`));
+    }
   }
 
   /**
@@ -117,6 +123,16 @@ export class TelegramRelay extends IChatRelay {
       default:
         throw new Error(`Type is ${type}, not supported`);
     }
+  }
+
+  private handleReplyMessages(msg: Message): void {
+    const replyUser: string = msg.from.username || `${msg.from.first_name} ${msg.from.last_name}`;
+
+    const origUser: string = msg.reply_to_message.from.username || `${msg.from.first_name} ${msg.from.last_name}`;
+    const origMessage: RelayMessage = new RelayMessage(msg.reply_to_message.text, origUser);
+
+    const replyText: string = `Response to: "${origMessage.getMessage()}"\n-> "${msg.text}"`;
+    this.sendMessageToRelay(new RelayMessage(replyText, replyUser));
   }
 
   /*
