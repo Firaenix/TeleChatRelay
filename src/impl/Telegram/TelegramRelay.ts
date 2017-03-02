@@ -61,7 +61,7 @@ export class TelegramRelay extends IChatRelay {
   */
   private hookBotRecievedSticker(msg: Message): void {
     const chatId = msg.chat.id;
-    this.sendMessageToRelay(new RelayMessage(`sticker - ${msg.sticker.emoji}`, msg.from.username || `${msg.from.first_name} ${msg.from.last_name}`));
+    this.sendMessageToRelay(new RelayMessage(`[${msg.sticker.emoji} sticker]`, msg.from.username || `${msg.from.first_name} ${msg.from.last_name}`));
   }
 
   private async hookBotRecievedDocument(msg: Message, type: FileTypes): Promise<void> {
@@ -126,11 +126,33 @@ export class TelegramRelay extends IChatRelay {
 
   private handleReplyMessages(msg: Message): void {
     const replyUser: string = msg.from.username || `${msg.from.first_name} ${msg.from.last_name}`;
-
     const origUser: string = msg.reply_to_message.from.username || `${msg.from.first_name} ${msg.from.last_name}`;
-    const origMessage: RelayMessage = new RelayMessage(msg.reply_to_message.text, origUser);
 
+    let replyToText: string;
+
+    if (msg.reply_to_message.text) {
+      replyToText = msg.reply_to_message.text;
+    }
+    else if (msg.reply_to_message.photo) {
+      replyToText = '[photo]';
+    }
+    else if (msg.reply_to_message.video) {
+      replyToText = '[video]';
+    }
+    else if (msg.reply_to_message.document) {
+      replyToText = '[document]';
+    }
+    else if (msg.reply_to_message.voice) {
+      replyToText = '[voice]';
+    }
+    else if (msg.reply_to_message.sticker) {
+      const sticker = msg.reply_to_message.sticker;
+      replyToText = `[${sticker.emoji} sticker]`;
+    }
+
+    const origMessage: RelayMessage = new RelayMessage(replyToText, origUser);
     const replyText: string = `Response to: "${origMessage.getMessage()}"\n-> "${msg.text}"`;
+
     this.sendMessageToRelay(new RelayMessage(replyText, replyUser));
   }
 
