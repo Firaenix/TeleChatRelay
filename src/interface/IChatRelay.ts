@@ -28,9 +28,10 @@ export abstract class IChatRelay {
 
     if (this.isLoggedIn && this._relay.isLoggedIn) {
       // Notify both bots of logged in status
+      const loginMessage: string = 'Logged In.';
 
-      this.recieveMessageFromRelay(new RelayMessage('Relay has logged in.', 'Relay'));
-      this._relay.recieveMessageFromRelay(new RelayMessage('Relay has logged in.', 'Relay'));
+      this.recieveMessageFromRelay(new RelayMessage(loginMessage, 'Relay'));
+      this._relay.recieveMessageFromRelay(new RelayMessage(loginMessage, 'Relay'));
     }
   }
 
