@@ -2,7 +2,7 @@
 import TelegramBot = require('node-telegram-bot-api');
 import { RequestOptions } from 'http';
 import { IChatRelay } from '../../interface/IChatRelay';
-import { TELEGRAM_API_KEY, TELEGRAM_CHAT_ID } from '../../const/private/ApiConsts';
+import { TELEGRAM_API_KEY, TELEGRAM_CHAT_ID } from '../../const/private/ApiKeys';
 import { RelayMessage } from '../../model/RelayMessage';
 import { RelayDocument } from '../../model/RelayDocument';
 import { FileUtils } from '../../utils/FileUtils';
@@ -87,7 +87,7 @@ export class TelegramRelay extends IChatRelay {
         downloadUrl: downloadUrl,
         filePath: path
       };
-    }
+    };
 
     const compileMessage = (filename: string, downloadObj: DownloadObject): RelayDocument => {
       return new RelayDocument({
