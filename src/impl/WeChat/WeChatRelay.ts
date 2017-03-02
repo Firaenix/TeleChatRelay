@@ -13,7 +13,6 @@ export class WeChatRelay extends IChatRelay {
   _relay: IChatRelay;
 
   private _room: Room | null;
-  private _loggedIn: boolean = false;
 
   connect(): void {
     console.log('Connecting to WeChat');
@@ -34,16 +33,14 @@ export class WeChatRelay extends IChatRelay {
 
   private hookLoginNotification(user: any) {
     console.log(`User ${user} logined`);
-    this._loggedIn = true;
 
-    // Just call this to notify the bot that we have connected to WeChat
-    this.recieveMessageFromRelay(new RelayMessage('Relay has logged in', 'Relay'));
+    this.notifyLoggedIn();
   }
 
   private async hookRecievedWeChatMessage(message: Message): Promise<void> {
     //console.log(message);
     // Dont send message if not logged in or message is from the WeChatRelay
-    if (!this._loggedIn || message.self()) {
+    if (!this.isLoggedIn || message.self()) {
       console.log('Not sending message, was sent by myself');
       return;
     }
@@ -139,7 +136,7 @@ export class WeChatRelay extends IChatRelay {
 
   recieveMessageFromRelay(message: RelayMessage): void {
     // Dont send messages if we arent logged in yet
-    if (!this._loggedIn) {
+    if (!this.isLoggedIn) {
       return;
     }
     // We should make sure we have a room to send the messages to before we send a message
@@ -172,7 +169,7 @@ export class WeChatRelay extends IChatRelay {
 
   private notImplementedType(sender: string, typeName: string): void {
     // Dont send messages if we arent logged in yet
-    if (!this._loggedIn) {
+    if (!this.isLoggedIn) {
       return;
     }
     // We should make sure we have a room to send the messages to before we send a message

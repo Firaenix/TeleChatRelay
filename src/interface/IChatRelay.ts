@@ -5,6 +5,8 @@ export abstract class IChatRelay {
   abstract _bot: any;
   _relay: IChatRelay;
 
+  public isLoggedIn: boolean;
+
   constructor(chatRelay?: IChatRelay) {
     this._relay = chatRelay;
   };
@@ -17,8 +19,19 @@ export abstract class IChatRelay {
   /**
    * Post declaration hook to connect a declared relay to another relay.
    */
-  connectToRelay(chatRelay?: IChatRelay) {
+  connectToRelay(chatRelay?: IChatRelay): void {
     this._relay = chatRelay;
+  }
+
+  notifyLoggedIn(): void {
+    this.isLoggedIn = true;
+
+    if (this.isLoggedIn && this._relay.isLoggedIn) {
+      // Notify both bots of logged in status
+
+      this.recieveMessageFromRelay(new RelayMessage('Relay has logged in.', 'Relay'));
+      this._relay.recieveMessageFromRelay(new RelayMessage('Relay has logged in.', 'Relay'));
+    }
   }
 
   /*

@@ -38,8 +38,7 @@ export class TelegramRelay extends IChatRelay {
   */
 
   private hookLoginMessage(): void {
-    // Notify telegram bot that relay has connected
-    this.recieveMessageFromRelay(new RelayMessage('Relay has logged in', 'Relay'));
+    this.notifyLoggedIn();
   }
 
   private hookChangeChatTitle(msg: Message) {
