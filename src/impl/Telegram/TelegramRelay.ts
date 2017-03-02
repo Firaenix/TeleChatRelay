@@ -48,7 +48,7 @@ export class TelegramRelay extends IChatRelay {
 
   private hookBotRecievedText(msg: Message): void {
     const chatId = msg.chat.id;
-    this.sendMessageToRelay(new RelayMessage(msg.text, msg.from.username));
+    this.sendMessageToRelay(new RelayMessage(msg.text, msg.from.username || `${msg.from.first_name} ${msg.from.last_name}`));
   }
 
   /**
@@ -56,7 +56,7 @@ export class TelegramRelay extends IChatRelay {
   */
   private hookBotRecievedSticker(msg: Message): void {
     const chatId = msg.chat.id;
-    this.sendMessageToRelay(new RelayMessage(`sticker - ${msg.sticker.emoji}`, msg.from.username));
+    this.sendMessageToRelay(new RelayMessage(`sticker - ${msg.sticker.emoji}`, msg.from.username || `${msg.from.first_name} ${msg.from.last_name}`));
   }
 
   private async hookBotRecievedDocument(msg: Message, type: FileTypes): Promise<void> {

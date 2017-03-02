@@ -49,7 +49,7 @@ export class WeChatRelay extends IChatRelay {
     }
 
     // Keep the connection to the room alive
-    this.resolveRoomAndPerformAction()
+    this.resolveRoomAndPerformAction();
 
     switch (message.type()) {
       case MsgType.TEXT:
