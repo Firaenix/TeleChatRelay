@@ -109,8 +109,8 @@ export class WeChatRelay extends IChatRelay {
         this.sendMessageToRelay(new RelayMessage(emojiUrl, message.from().name()));
       }
     } catch (error) {
-      console.log(error);
-      console.log(error.stack);
+      console.error(error);
+      console.error(error.stack);
     }
   }
 

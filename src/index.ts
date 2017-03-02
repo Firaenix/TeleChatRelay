@@ -20,6 +20,6 @@ try {
     Fsp.remove(fileDir).then(() => process.exit());
   });
 } catch (error) {
-  console.log(error);
-  console.log(error.stack);
+  console.error(error);
+  console.error(error.stack);
 }
