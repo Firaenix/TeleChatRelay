@@ -3,7 +3,7 @@ import { MediaMessage, MsgType } from 'wechaty/dist/src/message';
 import { RelayMessage } from './../../model/RelayMessage';
 import { Wechaty, Message, Room } from 'wechaty';
 import { IChatRelay } from '../../interface/IChatRelay';
-import { WECHAT_ROOM_NAME } from '../../const/private/ApiConsts';
+import { WECHAT_ROOM_NAME } from '../../const/private/ApiKeys';
 import { RelayDocument } from '../../model/RelayDocument';
 import * as Fsp from 'fs-promise';
 import { FileTypes } from '../../const/FileTypes';

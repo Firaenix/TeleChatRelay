@@ -40,7 +40,7 @@ jspm_packages
 dist/*
 
 # Dont commit private API Keys
-src/const/private/*
+ApiKeys.ts
 
 # Dont commit downloaded files
 files/*
