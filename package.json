@@ -35,6 +35,6 @@
     "sanitize-filename": "^1.6.1",
     "ts-md5": "^1.2.0",
     "tslint": "^4.3.1",
-    "wechaty": "^0.7.3"
+    "wechaty": "^0.7.41"
   }
 }
