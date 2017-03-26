@@ -161,22 +161,37 @@ export class TelegramRelay extends IChatRelay {
   */
 
   recieveMessageFromRelay(message: RelayMessage): void {
-    this._bot.sendMessage(TELEGRAM_CHAT_ID, message.getMessage());
+    this._bot.sendMessage(TELEGRAM_CHAT_ID, message.getMessage()).catch((e) => {
+      console.log(e.code);
+      console.log(e.response.body);
+    });
   }
 
   recieveImageFromRelay(image: RelayDocument): void {
-    this._bot.sendPhoto(TELEGRAM_CHAT_ID, image.getFilePath());
+    this._bot.sendPhoto(TELEGRAM_CHAT_ID, image.getFilePath()).catch((e) => {
+      console.log(e.code);
+      console.log(e.response.body);
+    });
   }
 
    recieveVideoFromRelay(video: RelayDocument): void {
-    this._bot.sendVideo(TELEGRAM_CHAT_ID, video.getFilePath());
+    this._bot.sendVideo(TELEGRAM_CHAT_ID, video.getFilePath()).catch((e) => {
+      console.log(e.code);
+      console.log(e.response.body);
+    });
   }
 
    recieveDocumentFromRelay(document: RelayDocument): void {
-    this._bot.sendDocument(TELEGRAM_CHAT_ID, document.getFilename());
+    this._bot.sendDocument(TELEGRAM_CHAT_ID, document.getFilename()).catch((e) => {
+      console.log(e.code);
+      console.log(e.response.body);
+    });
   }
 
    recieveVoiceFromRelay(voice: RelayDocument): void {
-    this._bot.sendVoice(TELEGRAM_CHAT_ID, voice.getFilename());
+    this._bot.sendVoice(TELEGRAM_CHAT_ID, voice.getFilename()).catch((e) => {
+      console.log(e.code);
+      console.log(e.response.body);
+    });
   }
 }
